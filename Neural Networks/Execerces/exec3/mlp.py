@@ -12,8 +12,8 @@ def sigmoid(x_val):
 
 def d_sigmoid( x_val, mode="layer", kernel=sigmoid):
 	"""
-	in the layer mode, the input data was already procesed using some kernel
-	in the input mode, the input data wasnt pass throw some kernel.
+	in the Layer mode, the input data was already procesed using some kernel
+	in the Input mode, the input data wasnt pass throw some kernel.
 	"""
 	if mode == "layer":
 		return np.multiply(x_val , (x_val - 1))
@@ -24,21 +24,29 @@ def d_sigmoid( x_val, mode="layer", kernel=sigmoid):
 ###### Fordward Function
 
 def forward_engine(input_data, objective_data, model, kernel=sigmoid, 
-                   verbose=False, *args):
+				   verbose=False, *args):
 	
-	
+	output = [ None for _ in range(len(weigth_data_container)) ]
 
-    output = [ None for _ in range(len(weigth_data_container)) ]
-    
-    relative_layer = input_data.copy()
-    for index in range(len(weigth_data_container)):
-            
-            if verbose:
-                print(relative_layer.shape, weigth_data_container[index].shape, theta_container[index].shape)
-            
-            carry =  kernel((relative_layer *  weigth_data_container[index]) + theta_container[index])
-            output[index] = carry.copy()
-            
-            relative_layer = carry.copy()
-    
-    return output
+	relative_layer = input_data.copy()
+	for index in range(len(weigth_data_container)):
+
+					if verbose:
+							print(relative_layer.shape, weigth_data_container[index].shape, theta_container[index].shape)
+
+					carry =  kernel((relative_layer *  weigth_data_container[index]) + theta_container[index])
+					output[index] = carry.copy()
+
+					relative_layer = carry.copy()
+
+	return output
+
+
+def main():
+	for i in range(4):
+		print(i, end="\t")
+	
+	input("")
+	
+if __name__ == "__main__":
+	main()
