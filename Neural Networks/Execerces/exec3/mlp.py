@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
+import os
+
 ##### Help Functions
 
 def sigmoid(x_val):
@@ -43,10 +46,25 @@ def forward_engine(input_data, objective_data, model, kernel=sigmoid,
 
 
 def main():
-	for i in range(4):
-		print(i, end="\t")
 	
-	input("")
+	targets_names = ["Kama", "Rosa", "Canadian"]
+	
+	seeds_df = pd.DataFrame()
+	seeds_df = pd.DataFrame.from_csv(path="seeds_df.csv", header=0 ,sep=";", encoding="utf-8")
+	
+	target = np.zeros(seeds_df.shape[0], dtype=int)
+	ii = 1
+	for names in targets_names:
+		target += seeds_df[names] * ii
+		ii += 1
+	
+	to_plot = seeds_df.iloc[:, :-3]
+	to_plot["target"] = target
+	
+	sns.pairplot(data=to_plot, vars=to_plot.columns.tolist()[:-1], hue='target')
+	plt.show()
+
+
 	
 if __name__ == "__main__":
 	main()
