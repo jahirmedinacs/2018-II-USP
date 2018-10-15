@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import operator as op
 
 def sigmoid(net): # função sigmoide
-    return (1/(1+np.exp(-net)))
+    return ( 1 / ( 1 + np.exp( -net ) ))
 
 def derivadanet(net):
-    return (net*(1-net))
+    return (net * ( 1 - net ))
 
 def feedforward(X,model,function = sigmoid):
     
@@ -107,8 +107,8 @@ def backpropagation(model,X,Y,eta = 0.1,momentum = 0.2 ,threshold = 1e-7, dnet =
         #print("Error:",sError)
         #print("\n");
     
-
     return model
+
 def mlp(Isize = 10,Hsize = [2,4] ,Osize = 3):
     
     # Isize tamano da camada de entrada
