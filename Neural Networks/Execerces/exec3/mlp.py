@@ -10,12 +10,13 @@ import os
 
 ##### Help Functions
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+def normalizacion(Data):
+	
+	for i in  np.arange(Data.shape[1]):
+		Data[:,i] = ( Data[:,i] - np.min(Data[:,i]) )/( np.max(Data[:,i]) - np.min(Data[:,i]) )
+	return Data
 
-import operator as op
-
+##### MLP
 
 def sigmoid(net): # função sigmoide
 	return ( 1 / ( 1 + np.exp( -net ) ))
@@ -145,18 +146,6 @@ def mlp(Isize = 10,Hsize = [2,4] ,Osize = 3):
 	return model
 
 
-def normalizacion(Data):
-	
-	for i in  np.arange(Data.shape[1]):
-		Data[:,i] = ( Data[:,i] - np.min(Data[:,i]) )/( np.max(Data[:,i]) - np.min(Data[:,i]) )
-	return Data
-
-
-def binarizar(Y,siz = 3):
-	Y2 = np.zeros((Y.shape[0],siz))
-	for i in np.arange(Y.shape[0]):
-		Y2[i,int(Y[i])-1] = 1
-	return Y2
 
 
 def clasificacion(model,X,Y, verbose=False):
@@ -167,11 +156,11 @@ def clasificacion(model,X,Y, verbose=False):
 		Yi = np.round(Yesperado)
 		
 		if verbose:
-			print("Predicted :\t", Yi, "\t", Yesperado, "\tExpected :\t", Y[i,])
+			print("\n\t", i,"\n\tPredicted :\t", Yi, " -\t- ", Yesperado, "\n\tExpected :\t", Y[i,])
 		
 		if np.sum(Yi - Y[i,]) == 0:
-			acierto = acierto +1
-	return (acierto*100)/tam
+			acierto = acierto + 1
+	return (acierto * 100.0) / tam
 
 
 def regresion(model,X,Y, verbose=False):
@@ -198,6 +187,7 @@ def sub_sampler(data_samples, ratio, verbose=False):
 	return [sub_sample_ids_train,sub_sample_ids_test]
 
 
+##### Exercice Functions
 
 def seed_test(Data,siz = 0.75,maxiter = 1000, eta = 0.5,momentum = 0):
 
@@ -210,29 +200,29 @@ def seed_test(Data,siz = 0.75,maxiter = 1000, eta = 0.5,momentum = 0):
 	Y = binarizar(Y, siz = 3)
 	"""
 	
-	objetive = Data.iloc[:, :-3].values
-	X = objetive
+	parameters = Data.iloc[:, :-3].values
+	X = normalizacion(parameters)
 	
 	sizes = sub_sampler(X, siz)
 	
-	parameters = Data.iloc[:, -3:].values
-	Y = normalizacion(parameters)
+	objetive = Data.iloc[:, -3:].values
+	Y = objetive.astype(float)
 	
 	X1 = X[sizes[0],:]
 	Y1 = Y[sizes[0],:]
 	
 	X2 = X[sizes[1],:]
 	Y2 = Y[sizes[1],:]
-	
-	M = mlp(Isize = 7, Hsize = [5,4], Osize = 3)
+
+	M = mlp(Isize = 7, Hsize = [5, 4], Osize = 3)
 	trained = backpropagation(M,X1,Y1,eta = eta , momentum = momentum , maxiter = maxiter)
 	
 	A = clasificacion(trained,X1,Y1)
 	B = clasificacion(trained,X2,Y2, verbose=True)
 	
 	print("Particionamiento: "+ str(siz) +" Max.Iter: " + str(maxiter) + " Eta: " + str(eta) +  "Momentum:" + str(momentum))    
-	print("Error na data de treinamento",A)
-	print("Error na data de test",B)
+	print("Precition na data de treinamento",A)
+	print("Precition na data de test",B)
 	print("\n")
 					
 	return [A,B]
