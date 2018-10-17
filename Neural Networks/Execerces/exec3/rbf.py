@@ -11,13 +11,13 @@ import help_f as hf
 
 ##### RBF
 
-def k_means(data, clusters=3,threshold=1e-5 , max_iter=1000):
+def k_means(data, n_of_clusters=3, threshold=1e-5 , max_iter=1000):
 
 	rows_id = np.arange(data.shape[0])
-	ids = np.random.choice(rows_id, clusters, replace=False)
+	center_ids = np.random.choice(rows_id, n_of_clusters, replace=False)
 
-	centers = data[ids, :]
-		
+	centers = data[center_ids, :]
+
 	error = 1e3
 	for _  in range(max_iter):
 		if error > threshold:
@@ -25,41 +25,42 @@ def k_means(data, clusters=3,threshold=1e-5 , max_iter=1000):
 		else:
 			break
 
-		distances =	[[hf.euclidean_dist(column_x, centers[ii, :]).tolist() for column_x in data] for ii in range(clusters)]
+		distances =	[[hf.euclidean_dist(column_x, centers[ii, :]).tolist() for column_x in data] for ii in range(n_of_clusters)]
 
-		ids = []
-		for i in np.arange(data.shape[0]):
-			mini = distances[0][i]
-			indice = 0
-			for j in np.arange(clusters):
-				if mini > distances[j][i]:
-					mini = distances[j][i]
-					indice = j
-			ids.append(indice);
+		index_container = []
+		for i in range(data.shape[0]):
+			min_dist = distances[0][i]
+			index = 0
+			for j in range(n_of_clusters):
+				if min_dist > distances[j][i]:
+					min_dist = distances[j][i]
+					index = j
+			index_container += [index];
 
 		error = 0
-		ids = np.asarray(ids.copy())
-		for i in np.arange(clusters):
-			rowIds = np.where( ids == i)
-			error = error + hf.euclidean_dist(centers[i,],np.mean(data[rowIds,],axis = 1))
-			centers[i,] = np.mean(data[rowIds,],axis = 1)
+		index_container = np.array(index_container)
+		for i in range(n_of_clusters):
+			rows = np.where(index_container == i)
+			centers[i, :] = data[rows, :].mean(1)
 
-	spread = 1.0
-	return [clusters,centers,ids,spread]
+			error += hf.euclidean_dist(centers[i, :], data[rows, :].mean(1))
 
-def phi(model,X):
-	clusters = model[0]
-	centers = model[1]
-	spread = model[3]
+	return [n_of_clusters, centers, index_container, 1.0]
 
-	X1 = np.zeros((X.shape[0],clusters))
 
-	for i in np.arange(clusters):
-		for j in np.arange(X.shape[0]):
-			X1[j,i] = hf.gaussiana(hf.euclidean_dist(centers[i,],X[j,]),spread)
-	return X1
+def phi(model,data):
+	[n_of_clusters, centers, _, spread] = model
 
-def adaline(X,Y,eta =0.1,threshold = 1e-5 ,maxiter = 100):
+	output = np.zeros((data.shape[0], n_of_clusters))
+
+	for i in range(n_of_clusters):
+		for j in range(data.shape[0]):
+			output[j,i] = hf.gaussiana( hf.euclidean_dist(centers[i,],data[j,]), spread)
+
+	return output
+
+
+def adaline(X,Y,eta=0.1, threshold=1e-5 ,maxiter=100):
 	W = np.random.random_sample((Y.shape[1],X.shape[1])) - 0.5 # randomização dos pesos sinapticos
 	c = 0
 
@@ -97,13 +98,11 @@ def clasificacion(W,X,Y, verbose=False):
 
 def seed_test(Data, cluster=12, siz=0.75, maxiterK=1000, maxiterA=1000, eta = 0.2):
 
-	parameters = Data.iloc[:, :-3].values
-	X = hf.normalizacion(parameters)
+	X = hf.normalizacion(Data.iloc[:, :-3].values)
 
-	objetive = Data.iloc[:, -3:].values
-	Y = objetive.astype(float)
+	Y = Data.iloc[:, -3:].values.astype(float)
 
-	model  = k_means(X.copy(),clusters=cluster, max_iter=maxiterK)
+	model  = k_means(X.copy(), n_of_clusters=cluster, max_iter=maxiterK)
 	X = phi(model,X.copy())
 
 	sizes = hf.sub_sampler(X, siz)

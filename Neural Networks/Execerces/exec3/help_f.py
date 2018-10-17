@@ -10,7 +10,7 @@ import os
 
 def normalizacion(input_data):
 	output = np.zeros(input_data.shape)
-	
+
 	for i in  np.arange(input_data.shape[1]):
 		temp_array = input_data[:, i]
 		output[:, i] = ( temp_array - temp_array.min() ) / ( temp_array.max() - temp_array.min() )
@@ -22,7 +22,7 @@ def sub_sampler(data_samples, ratio):
 	rows_id = np.arange(data_samples.shape[0])
 
 	sub_sample_ids_train = np.random.choice(rows_id, top_id, replace=False)
-	
+
 	sub_sample_ids_test = np.setdiff1d(rows_id, sub_sample_ids_train)
 
 	return [sub_sample_ids_train,sub_sample_ids_test]
