@@ -17,12 +17,12 @@ def normalizacion(input_data):
 	return output
 
 
-def sub_sampler(data_samples, ratio, verbose=False):
+def sub_sampler(data_samples, ratio):
 	top_id = int(data_samples.shape[0] * ratio)
-
 	rows_id = np.arange(data_samples.shape[0])
-	sub_sample_ids_train = np.random.choice(rows_id, top_id, replace=False)
 
+	sub_sample_ids_train = np.random.choice(rows_id, top_id, replace=False)
+	
 	sub_sample_ids_test = np.setdiff1d(rows_id, sub_sample_ids_train)
 
 	return [sub_sample_ids_train,sub_sample_ids_test]

@@ -11,24 +11,24 @@ import help_f as hf
 
 ##### RBF
 
-def kmeans(X, clusters = 3,threshold = 1e-5 , maxiter = 1000):
+def k_means(data, clusters=3,threshold=1e-5 , max_iter=1000):
 
-	rows_id = np.arange(X.shape[0])
+	rows_id = np.arange(data.shape[0])
 	ids = np.random.choice(rows_id, clusters, replace=False)
 
-	centers = X[ids,:]
-	error = 2*threshold
-	iteration = 0
+	centers = data[ids, :]
+		
+	error = 1e3
+	for _  in range(max_iter):
+		if error > threshold:
+			pass
+		else:
+			break
 
-
-	while error > threshold and iteration < maxiter:
-
-		distances = []
-		for i in np.arange(clusters):
-			distances.append(list(map( hf.euclidean_dist, [a for a in X],[centers[i,] for b in np.arange(X.shape[0])]) ))
+		distances =	[[hf.euclidean_dist(column_x, centers[ii, :]).tolist() for column_x in data] for ii in range(clusters)]
 
 		ids = []
-		for i in np.arange(X.shape[0]):
+		for i in np.arange(data.shape[0]):
 			mini = distances[0][i]
 			indice = 0
 			for j in np.arange(clusters):
@@ -41,9 +41,8 @@ def kmeans(X, clusters = 3,threshold = 1e-5 , maxiter = 1000):
 		ids = np.asarray(ids.copy())
 		for i in np.arange(clusters):
 			rowIds = np.where( ids == i)
-			error = error + hf.euclidean_dist(centers[i,],np.mean(X[rowIds,],axis = 1))
-			centers[i,] = np.mean(X[rowIds,],axis = 1)
-		iteration = iteration+1
+			error = error + hf.euclidean_dist(centers[i,],np.mean(data[rowIds,],axis = 1))
+			centers[i,] = np.mean(data[rowIds,],axis = 1)
 
 	spread = 1.0
 	return [clusters,centers,ids,spread]
@@ -104,7 +103,7 @@ def seed_test(Data, cluster=12, siz=0.75, maxiterK=1000, maxiterA=1000, eta = 0.
 	objetive = Data.iloc[:, -3:].values
 	Y = objetive.astype(float)
 
-	model  = kmeans(X.copy(),clusters= cluster,maxiter= maxiterK)
+	model  = k_means(X.copy(),clusters=cluster, max_iter=maxiterK)
 	X = phi(model,X.copy())
 
 	sizes = hf.sub_sampler(X, siz)
@@ -144,7 +143,7 @@ def main():
 	seeds_df = pd.DataFrame()
 	seeds_df = pd.DataFrame.from_csv(path="seeds_df.csv", header=0 ,sep=";", encoding="utf-8")
 
-    seed_test(seeds_df)
+	seed_test(seeds_df)
 
 
 if __name__ == "__main__":
